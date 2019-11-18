@@ -1,5 +1,6 @@
 # Modified by SignalFx
 require "sidekiq"
+require "opentracing"
 
 require "sidekiq/tracer/version"
 require "sidekiq/tracer/constants"
