@@ -73,6 +73,31 @@ RSpec.describe Sidekiq::Tracer::ServerMiddleware do
     end
   end
 
+  describe "disabling client-server trace context propagation" do
+    before do
+      Sidekiq::Tracer.instrument(tracer: tracer, opts: {propagate_context: false})
+      schedule_test_job
+      TestJob.drain
+    end
+
+    it "creates spans for each part of the chain" do
+      expect(tracer.spans.count).to eq(2)
+    end
+
+    it "client-server spans have different trace_id" do
+      trace_ids = tracer.spans.map(&:context).map(&:trace_id).uniq
+      expect(trace_ids.count).to eq(2)
+    end
+
+    it "doesn't propagate parent child relationship" do
+      client_span = tracer.spans[0]
+      server_span = tracer.spans[1]
+
+      expect(server_span.context.parent_id).not_to eq(client_span.context.span_id)
+      expect(client_span.context.parent_id).not_to eq(server_span.context.span_id)
+    end
+  end
+
   describe 'active span propagation' do
     let!(:root_scope) { tracer.start_active_span('root') }
 

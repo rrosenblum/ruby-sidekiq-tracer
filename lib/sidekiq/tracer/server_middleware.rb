@@ -4,14 +4,15 @@ module Sidekiq
     class ServerMiddleware
       include Commons
 
-      attr_reader :tracer
+      attr_reader :tracer, :opts
 
-      def initialize(tracer: nil)
+      def initialize(tracer: nil, opts: {})
         @tracer = tracer
+        @opts = opts
       end
 
       def call(worker, job, queue)
-        parent_span_context = extract(job)
+        parent_span_context = extract(job) if opts.fetch(:propagate_context, true)
 
         scope = tracer.start_active_span(
           operation_name(job),

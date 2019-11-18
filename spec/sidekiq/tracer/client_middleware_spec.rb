@@ -86,6 +86,18 @@ RSpec.describe Sidekiq::Tracer::ClientMiddleware do
     end
   end
 
+  describe "disabling span context injection"  do
+    before do
+      Sidekiq::Tracer.instrument_client(tracer: tracer, opts: {propagate_context: false})
+      schedule_test_job
+    end
+
+    it "doesn't inject span context to enqueued job" do
+      job = TestJob.jobs.last
+      expect(job['Trace-Context']).to be(nil)
+    end
+  end
+
   def schedule_test_job
     TestJob.perform_async("value1", "value2", 1)
   end
