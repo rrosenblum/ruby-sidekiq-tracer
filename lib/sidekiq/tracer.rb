@@ -1,3 +1,4 @@
+# Modified by SignalFx
 require "sidekiq"
 
 require "sidekiq/tracer/version"
@@ -9,23 +10,23 @@ require "sidekiq/tracer/server_middleware"
 module Sidekiq
   module Tracer
     class << self
-      def instrument(tracer: OpenTracing.global_tracer, active_span: nil)
-        instrument_client(tracer: tracer, active_span: active_span)
-        instrument_server(tracer: tracer, active_span: active_span)
+      def instrument(tracer: OpenTracing.global_tracer)
+        instrument_client(tracer: tracer)
+        instrument_server(tracer: tracer)
       end
 
-      def instrument_client(tracer: OpenTracing.global_tracer, active_span: nil)
+      def instrument_client(tracer: OpenTracing.global_tracer)
         Sidekiq.configure_client do |config|
           config.client_middleware do |chain|
-            chain.add Sidekiq::Tracer::ClientMiddleware, tracer: tracer, active_span: active_span
+            chain.add Sidekiq::Tracer::ClientMiddleware, tracer: tracer
           end
         end
       end
 
-      def instrument_server(tracer: OpenTracing.global_tracer, active_span: nil)
+      def instrument_server(tracer: OpenTracing.global_tracer)
         Sidekiq.configure_server do |config|
           config.client_middleware do |chain|
-            chain.add Sidekiq::Tracer::ClientMiddleware, tracer: tracer, active_span: active_span
+            chain.add Sidekiq::Tracer::ClientMiddleware, tracer: tracer
           end
 
           config.server_middleware do |chain|

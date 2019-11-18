@@ -1,3 +1,4 @@
+# Modified by SignalFx
 require "spec_helper"
 
 RSpec.describe Sidekiq::Tracer::ServerMiddleware do
@@ -44,13 +45,13 @@ RSpec.describe Sidekiq::Tracer::ServerMiddleware do
   end
 
   describe "client-server trace context propagation" do
-    let(:root_span) { tracer.start_span("root") }
+    let!(:root_scope) { tracer.start_active_span("root") }
 
     before do
-      Sidekiq::Tracer.instrument(tracer: tracer, active_span: -> { root_span })
+      Sidekiq::Tracer.instrument(tracer: tracer)
       schedule_test_job
       TestJob.drain
-      root_span.finish
+      root_scope.close
     end
 
     it "creates spans for each part of the chain" do
@@ -67,18 +68,18 @@ RSpec.describe Sidekiq::Tracer::ServerMiddleware do
       client_span = tracer.spans[1]
       server_span = tracer.spans[2]
 
-      expect(client_span.context.parent_id).to eq(root_span.context.span_id)
+      expect(client_span.context.parent_id).to eq(root_scope.span.context.span_id)
       expect(server_span.context.parent_id).to eq(client_span.context.span_id)
     end
   end
 
   describe 'active span propagation' do
-    let(:root_span) { tracer.start_span('root') }
+    let!(:root_scope) { tracer.start_active_span('root') }
 
     before do
-      Sidekiq::Tracer.instrument(tracer: tracer, active_span: -> { root_span })
+      Sidekiq::Tracer.instrument(tracer: tracer)
       schedule_test_job
-      root_span.finish
+      root_scope.close
     end
 
     it 'sets server span as active span' do

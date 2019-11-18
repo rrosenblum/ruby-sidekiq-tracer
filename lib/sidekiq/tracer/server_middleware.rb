@@ -1,3 +1,4 @@
+# Modified by SignalFx
 module Sidekiq
   module Tracer
     class ServerMiddleware
@@ -5,7 +6,7 @@ module Sidekiq
 
       attr_reader :tracer
 
-      def initialize(tracer:)
+      def initialize(tracer: nil)
         @tracer = tracer
       end
 
@@ -22,7 +23,7 @@ module Sidekiq
       rescue Exception => e
         if scope
           scope.span.set_tag('error', true)
-          scope.span.log(event: 'error', :'error.object' => e)
+          scope.span.log_kv(event: 'error', :'error.object' => e)
         end
         raise
       ensure

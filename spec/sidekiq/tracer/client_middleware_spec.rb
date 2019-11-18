@@ -1,3 +1,4 @@
+# Modified by SignalFx
 require "spec_helper"
 
 RSpec.describe Sidekiq::Tracer::ClientMiddleware do
@@ -50,19 +51,20 @@ RSpec.describe Sidekiq::Tracer::ClientMiddleware do
   end
 
   describe "active span propagation" do
-    let(:root_span) { tracer.start_span("root") }
+    let!(:root_scope) { tracer.start_active_span("root") }
 
     before do
-      Sidekiq::Tracer.instrument_client(tracer: tracer, active_span: -> { root_span })
+      Sidekiq::Tracer.instrument_client(tracer: tracer)
       schedule_test_job
+      root_scope.close
     end
 
     it "creates the new span with active span as a parent" do
       expect(tracer.spans.count).to eq(2)
-      expect(tracer.spans.first).to eq(root_span)
+      expect(tracer.spans.first).to eq(root_scope.span)
       child_span = tracer.spans.last
 
-      expect(child_span.context.parent_id).to eq(root_span.context.span_id)
+      expect(child_span.context.parent_id).to eq(root_scope.span.context.span_id)
     end
   end
 
