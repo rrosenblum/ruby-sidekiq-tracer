@@ -1,16 +1,18 @@
+# Modified by SignalFx
 module Sidekiq
   module Tracer
     class ServerMiddleware
       include Commons
 
-      attr_reader :tracer
+      attr_reader :tracer, :opts
 
-      def initialize(tracer:)
+      def initialize(tracer: nil, opts: {})
         @tracer = tracer
+        @opts = opts
       end
 
       def call(worker, job, queue)
-        parent_span_context = extract(job)
+        parent_span_context = extract(job) if opts.fetch(:propagate_context, true)
 
         scope = tracer.start_active_span(
           operation_name(job),
@@ -22,7 +24,7 @@ module Sidekiq
       rescue Exception => e
         if scope
           scope.span.set_tag('error', true)
-          scope.span.log(event: 'error', :'error.object' => e)
+          scope.span.log_kv(event: 'error', :'error.object' => e)
         end
         raise
       ensure
