@@ -1,30 +1,31 @@
 # coding: utf-8
+# Modified by SignalFx
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "sidekiq/tracer/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "sidekiq-opentracing"
+  spec.name          = "sfx-sidekiq-opentracing"
   spec.version       = Sidekiq::Tracer::VERSION
-  spec.authors       = ["iaintshine"]
-  spec.email         = ["bodziomista@gmail.com"]
+  spec.authors       = ["SignalFx", "iaintshine"]
+  spec.email         = ["signalfx-oss@splunk.com"]
   spec.license       = "Apache-2.0"
 
   spec.summary       = %q{OpenTracing instrumentation for Sidekiq.}
   spec.description   = %q{}
-  spec.homepage      = "https://github.com/iaintshine/ruby-sidekiq-tracer"
+  spec.homepage      = "https://github.com/signalfx/ruby-sidekiq-tracer"
 
-  spec.required_ruby_version = ">= 2.2.0"
+  spec.required_ruby_version = ">= 2.0.0"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.bindir        = "bin"
+  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'opentracing', '~> 0.4'
-  spec.add_dependency 'sidekiq'
+  spec.add_dependency 'sidekiq', '>= 0.7.0'
 
   spec.add_development_dependency "opentracing_test_tracer", "~> 0.1"
   spec.add_development_dependency "bundler", "~> 1.15"

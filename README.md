@@ -7,7 +7,7 @@ OpenTracing instrumentation for Sidekiq (both client, and server-side).
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sidekiq-opentracing'
+gem 'sfx-sidekiq-opentracing'
 ```
 
 And then execute:
@@ -16,7 +16,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install sidekiq-opentracing
+    $ gem install sfx-sidekiq-opentracing
 
 ## Usage
 

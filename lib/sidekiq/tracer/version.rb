@@ -1,5 +1,6 @@
+# Modified by SignalFx
 module Sidekiq
   module Tracer
-    VERSION = "1.0.0"
+    VERSION = "0.0.3"
   end
 end
