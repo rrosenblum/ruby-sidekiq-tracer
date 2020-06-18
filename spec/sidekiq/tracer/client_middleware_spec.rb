@@ -44,7 +44,7 @@ RSpec.describe Sidekiq::Tracer::ClientMiddleware do
       expect(span.tags).to include(
         'sidekiq.queue' => 'default',
         'sidekiq.retry' => 'true',
-        'sidekiq.args' => 'value1, value2, 1',
+        'sidekiq.args' => 'value1, value2' + ('2' * 1010),
         'sidekiq.jid' => /\S+/
       )
     end
@@ -99,7 +99,7 @@ RSpec.describe Sidekiq::Tracer::ClientMiddleware do
   end
 
   def schedule_test_job
-    TestJob.perform_async("value1", "value2", 1)
+    TestJob.perform_async("value1", "value" + "2" * 1024, 1)
   end
 
   class TestJob
