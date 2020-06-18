@@ -12,7 +12,7 @@ module Sidekiq
           'sidekiq.queue' => job['queue'],
           'sidekiq.jid' => job['jid'],
           'sidekiq.retry' => job['retry'].to_s,
-          'sidekiq.args' => job['args'].join(", ")
+          'sidekiq.args' => job['args'].join(", ")[0, 1024]
         }
       end
     end
