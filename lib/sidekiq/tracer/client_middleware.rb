@@ -19,8 +19,7 @@ module Sidekiq
         yield
       rescue Exception => e
         if scope
-          scope.span.set_tag('error', true)
-          scope.span.log_kv(event: 'error', :'error.object' => e)
+          scope.span.record_exception(e)
         end
         raise
       ensure
