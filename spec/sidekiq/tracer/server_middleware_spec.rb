@@ -44,6 +44,37 @@ RSpec.describe Sidekiq::Tracer::ServerMiddleware do
     end
   end
 
+  describe "errors raised by jobs" do
+
+    it "are recorded on spans" do
+      job_id = schedule_bad_test_job
+      Sidekiq::Tracer.instrument_server(tracer: tracer)
+      error = nil
+      begin
+        BadTestJob.drain
+      rescue StandardError => e
+        error = e
+      end
+
+      expect(tracer.spans.count).to eq(1)
+      expected_tags= {
+        "component" => "Sidekiq",
+        "span.kind" => "server",
+        "sidekiq.queue" => "default",
+        "sidekiq.jid" => job_id,
+        "sidekiq.retry" => "true",
+        "sidekiq.args" => "",
+        "error" => true,
+        "sfx.error.kind" => "RuntimeError",
+        "sfx.error.message" => "test error",
+        "sfx.error.stack" => error.backtrace.join('\n')
+      }
+
+      expect(tracer.spans.first.tags).to eq(expected_tags)
+    end
+  end
+
+
   describe "client-server trace context propagation" do
     let!(:root_scope) { tracer.start_active_span("root") }
 
@@ -120,6 +151,10 @@ RSpec.describe Sidekiq::Tracer::ServerMiddleware do
     TestJob.perform_async("value1", "value" + "2" * 1024, 1)
   end
 
+  def schedule_bad_test_job
+    BadTestJob.perform_async() 
+  end
+
   class TestJob
     include Sidekiq::Worker
 
@@ -129,6 +164,18 @@ RSpec.describe Sidekiq::Tracer::ServerMiddleware do
 
     def perform(*args)
       self.class.tracer.active_span.context.span_id
+    end
+  end
+
+  class BadTestJob
+    include Sidekiq::Worker
+
+    class << self
+      attr_accessor :tracer
+    end
+
+    def perform(*args)
+      raise RuntimeError.new "test error"
     end
   end
 end

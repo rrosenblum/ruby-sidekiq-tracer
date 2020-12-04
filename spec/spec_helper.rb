@@ -1,7 +1,7 @@
 require "bundler/setup"
 require "sidekiq/testing"
 require "sidekiq-opentracing"
-require 'opentracing_test_tracer'
+require 'signalfx_test_tracer'
 require "pry"
 
 OpenTracing.global_tracer = OpenTracingTestTracer.build
