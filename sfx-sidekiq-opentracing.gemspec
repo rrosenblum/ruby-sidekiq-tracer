@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "sidekiq/tracer/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "sfx-sidekiq-opentracing"
+  spec.name          = "signalfx-sidekiq-opentracing"
   spec.version       = Sidekiq::Tracer::VERSION
   spec.authors       = ["SignalFx", "iaintshine"]
   spec.email         = ["signalfx-oss@splunk.com"]
