@@ -11,7 +11,7 @@ module Sidekiq
         @opts = opts
       end
 
-      def call(worker_class, job, queue, redis_pool)
+      def call(_worker_class, job, _queue)
         scope = tracer.start_active_span(
           operation_name(job), tags: tags(job, 'client')
         )
